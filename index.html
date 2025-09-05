@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>📚 Application Web Livres</title>
+  <!-- Laisse ce lien si tu ajoutes un fichier CSS externe; sinon, tu peux mettre du style inline -->
+  <link rel="stylesheet" href="./assets/styles.css" />
+  <style>
+    /* Styles de secours (fallback) si assets/styles.css n'est pas encore présent */
+    :root{--bg:#0b0d12;--card:#121621;--muted:#9da3af;--text:#e5e7eb;--primary:#4f46e5;--ring:#6366f1}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
+    .container{width:100%;max-width:1100px;margin:0 auto;padding:24px}
+    header h1{margin:0 0 6px;font-size:28px}
+    .muted{color:var(--muted)}
+    .card{background:var(--card);border:1px solid #1f2433;border-radius:16px;padding:18px}
+    .grid{display:grid;gap:12px}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .stack{display:flex;flex-direction:column;gap:8px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    input[type="text"], input[type="number"], select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #1f2433;background:#0f1320;color:var(--text);outline:none}
+    input[type="text"]:focus, input[type="number"]:focus, select:focus{border-color:var(--ring);box-shadow:0 0 0 4px rgba(99,102,241,.15)}
+    .btn{border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+    .btn.primary{background:var(--primary);color:#fff}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid #2a3145}
+    .tabs{display:flex;gap:8px;margin-bottom:12px}
+    .tab{padding:8px 12px;border-radius:10px;border:1px solid #2a3145;cursor:pointer}
+    .tab.active{background:#0f1320;border-color:var(--ring)}
+    .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+    .book-card{display:grid;grid-template-columns:84px 1fr;gap:12px}
+    .book-card img{width:84px;height:126px;object-fit:cover;border-radius:8px;background:#0b0d12}
+    .badges{display:flex;gap:6px;flex-wrap:wrap}
+    .badge{font-size:12px;padding:4px 8px;border:1px solid #2a3145;border-radius:999px}
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px}
+    .hidden{display:none}
+    .suggestions{position:absolute;left:0;right:0;top:calc(100% + 8px);background:var(--card);border:1px solid #1f2433;border-radius:14px;max-height:380px;overflow:auto;z-index:20}
+    .suggestion{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:10px 12px;cursor:pointer;align-items:center}
+    .suggestion:hover{background:#0f1320}
+    .suggestion img{width:48px;height:72px;object-fit:cover;border-radius:6px;background:#0b0d12}
+    .section{margin-top:16px}
+  </style>
+</head>
+<body>
+  <header class="container">
+    <h1>📚 Application Web Livres</h1>
+    <p class="muted">Front HTML/CSS/JS natif · Back PHP/MySQL (IONOS) · Données via <strong>Google Books API</strong></p>
+  </header>
+
+  <main class="container">
+    <!-- === AJOUT / AUTO-COMPLÉTION === -->
+    <section class="card section" aria-labelledby="add-section-title">
+      <div class="section-title">
+        <h2 id="add-section-title">Ajouter un livre (Google Books API)</h2>
+      </div>
+
+      <!-- Barre de recherche pour AJOUT -->
+      <div class="stack" style="position:relative">
+        <label for="add-search" class="muted">Rechercher un titre, un auteur…</label>
+        <input id="add-search" type="text" placeholder="Ex. harry potter, dune, l'étranger…" autocomplete="off" />
+        <div id="add-suggestions" class="suggestions hidden" role="listbox" aria-label="Suggestions de livres"></div>
+      </div>
+
+      <!-- Détails du livre sélectionné (remplis par JS après sélection) -->
+      <div id="selected-book" class="card hidden" aria-live="polite">
+        <div class="row">
+          <img id="selected-cover" src="" alt="Couverture" width="100" height="150" style="border-radius:10px" />
+          <div class="stack" style="flex:1">
+            <h3 id="selected-title">Titre</h3>
+            <p class="muted" id="selected-authors">Auteur(s)</p>
+            <div class="grid grid-3">
+              <div class="stack">
+                <label class="muted" for="selected-pages">Pages</label>
+                <input id="selected-pages" type="number" min="1" placeholder="Nombre de pages" />
+              </div>
+              <div class="stack">
+                <label class="muted" for="selected-isbn">ISBN</label>
+                <input id="selected-isbn" type="text" placeholder="ISBN-10 ou ISBN-13" />
+              </div>
+              <div class="stack">
+                <label class="muted" for="selected-format">Format</label>
+                <select id="selected-format">
+                  <option value="broché">Broché</option>
+                  <option value="poche">Poche</option>
+                  <option value="relié">Relié</option>
+                  <option value="ebook">Ebook</option>
+                  <option value="inconnu">Inconnu</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-3">
+              <div class="stack">
+                <label class="muted" for="series-name">Série (optionnel)</label>
+                <input id="series-name" type="text" placeholder="Nom de la collection / série" />
+              </div>
+              <div class="stack">
+                <label class="muted" for="series-number">N° dans la série</label>
+                <input id="series-number" type="number" min="1" step="1" placeholder="1" />
+              </div>
+              <div class="stack">
+                <label class="muted" for="target-shelf">Ajouter dans</label>
+                <select id="target-shelf">
+                  <option value="bibliotheque">Bibliothèque</option>
+                  <option value="wishlist" selected>Wishlist</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <label class="row" style="gap:6px">
+                <input id="flag-tbr" type="checkbox" />
+                <span>Pile à lire</span>
+              </label>
+              <label class="row" style="gap:6px">
+                <input id="flag-read" type="checkbox" />
+                <span>Lu</span>
+              </label>
+            </div>
+
+            <div class="row" style="margin-top:10px">
+              <button id="btn-save" class="btn primary">Enregistrer</button>
+              <button id="btn-cancel" class="btn ghost">Annuler</button>
+            </div>
+
+            <!-- Identifiants cachés remplis par JS -->
+            <input id="google-id" type="hidden" />
+            <input id="selected-title-raw" type="hidden" />
+            <input id="selected-authors-raw" type="hidden" />
+            <input id="selected-cover-url" type="hidden" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === RECHERCHE INTERNE / FILTRES === -->
+    <section class="card section" aria-labelledby="internal-search-title">
+      <div class="section-title">
+        <h2 id="internal-search-title">Recherche dans les livres enregistrés</h2>
+      </div>
+      <div class="grid grid-3">
+        <div class="stack">
+          <label for="local-search" class="muted">Rechercher (titre, auteur, ISBN…)</label>
+          <input id="local-search" type="text" placeholder="Rechercher dans votre bibliothèque / wishlist" autocomplete="off" />
+        </div>
+        <div class="stack">
+          <label for="filter-shelf" class="muted">Section</label>
+          <select id="filter-shelf">
+            <option value="all" selected>Toutes</option>
+            <option value="bibliotheque">Bibliothèque</option>
+            <option value="wishlist">Wishlist</option>
+          </select>
+        </div>
+        <div class="stack">
+          <label for="filter-reading" class="muted">État de lecture</label>
+          <select id="filter-reading">
+            <option value="all" selected>Tous</option>
+            <option value="a_lire">À lire</option>
+            <option value="lu">Lu</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label class="row" style="gap:6px">
+          <input id="toggle-series-group" type="checkbox" />
+          <span>Regrouper les collections / séries</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- === LISTES : TABS BIBLIOTHÈQUE / WISHLIST === -->
+    <section class="section" aria-labelledby="lists-title">
+      <div class="section-title">
+        <h2 id="lists-title">Vos livres</h2>
+        <div class="tabs" role="tablist">
+          <button class="tab active" id="tab-biblio" role="tab" aria-controls="panel-biblio" aria-selected="true">Bibliothèque</button>
+          <button class="tab" id="tab-wishlist" role="tab" aria-controls="panel-wishlist" aria-selected="false">Wishlist</button>
+        </div>
+      </div>
+
+      <div id="panel-biblio" role="tabpanel" aria-labelledby="tab-biblio">
+        <div id="list-biblio" class="list" aria-live="polite"></div>
+      </div>
+
+      <div id="panel-wishlist" class="hidden" role="tabpanel" aria-labelledby="tab-wishlist">
+        <div id="list-wishlist" class="list" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container" style="opacity:.7">
+    <small>Propulsé par Google Books API · Données stockées en MySQL (IONOS) via PHP</small>
+  </footer>
+
+  <!-- Modèle de carte livre (cloné par JS) -->
+  <template id="book-card-template">
+    <article class="card book-card" data-id="">
+      <img class="cover" alt="Couverture" />
+      <div class="stack">
+        <div>
+          <h3 class="title" style="margin:0"></h3>
+          <p class="authors muted" style="margin:.25rem 0 0"></p>
+        </div>
+        <div class="badges">
+          <span class="badge format">Format</span>
+          <span class="badge pages">0 pages</span>
+          <span class="badge series hidden"></span>
+        </div>
+        <div class="row">
+          <label class="row" style="gap:6px">
+            <input class="chk-read" type="checkbox" />
+            <span>Lu</span>
+          </label>
+          <label class="row" style="gap:6px">
+            <input class="chk-tbr" type="checkbox" />
+            <span>Pile à lire</span>
+          </label>
+          <label class="row" style="gap:6px">
+            <input class="chk-shelf" type="checkbox" />
+            <span>Bibliothèque ↔ Wishlist</span>
+          </label>
+        </div>
+        <div class="row">
+          <button class="btn ghost btn-edit">Modifier</button>
+          <button class="btn ghost btn-delete">Supprimer</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <!-- Points d'ancrage JS: configure l'endpoint PHP et la clé Google si besoin -->
+  <script>
+    window.GOOGLE_BOOKS_API_KEY = ""; // optionnel
+    window.API_ENDPOINT = "./api/books.php"; // adapte le chemin selon ton arborescence
+  </script>
+  <!-- Ton script JS (à créer) manipulera ces éléments -->
+  <script src="./assets/app.js" defer></script>
+</body>
+</html>
