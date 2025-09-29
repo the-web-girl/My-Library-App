@@ -1,168 +1,214 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Bibliothèque - Gestion de livres</title>
-    <meta name="description" content="Application web de gestion de livres avec Google Books API. Gérez votre bibliothèque et wishlist de livres facilement.">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>📚 Bibliothèque de Livres</title>
+  <meta name="description" content="Application de gestion de livres • Recherche Google Books API automatique • Gestion Wishlist & Bibliothèque • Formats Broché/Poche • Groupement par série/univers">
+  <meta name="color-scheme" content="dark light">
+
+  <link rel="stylesheet" href="./style.css">
+
 </head>
+
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="title-section">
-                    <h1 class="main-title">
-                        <span class="icon">📚</span>
-                        Ma Bibliothèque
-                        <span class="icon">✨</span>
-                    </h1>
-                    <p class="subtitle">
-                        Gérez votre collection de livres avec Google Books API
-                    </p>
-                </div>
-                
-                <!-- Search Bar -->
-                <div class="search-container">
-                    <span class="search-icon">🔍</span>
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        class="search-input" 
-                        placeholder="Rechercher un livre sur Google Books..."
-                    >
-                    <div id="loadingSpinner" class="loading-spinner" style="display: none;"></div>
-                    
-                    <!-- Suggestions Dropdown -->
-                    <div id="suggestions" class="suggestions"></div>
-                </div>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <h1>📚 Bibliothèque de Livres</h1>
+        <p class="subtitle">
+          Collection partagée multi-utilisateurs • Recherche Google Books API automatique • 
+          Formats Broché/Poche • Regroupement par série/univers • 
+          Synchronisation temps réel via Firebase Firestore.
+        </p>
+      </div>
+      <button id="themeToggle" class="btn btn-secondary">
+        🌙 Mode sombre
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Formulaire d'ajout -->
+    <section class="panel">
+      <h2 class="sr-only">Ajouter un livre</h2>
+      <form id="addBookForm">
+        <div class="form-grid">
+          <div class="field col-6 ac-wrapper">
+            <label for="bookTitle">Titre (recherche automatique)</label>
+            <input id="bookTitle" type="text" placeholder="Ex: Le Seigneur des Anneaux" autocomplete="on" />
+            <div id="ac-list" class="ac-list"></div>
+          </div>
+          
+          <div class="field col-3">
+            <label for="bookAuthor">Auteur</label>
+            <input id="bookAuthor" type="text" placeholder="Ex: Tolkien" />
+          </div>
+
+          <div class="field col-3">
+            <label for="bookYear">Année</label>
+            <input id="bookYear" type="text" placeholder="Ex: 1954" />
+          </div>
+          
+          <div class="field col-6">
+            <label for="coverUrl">URL Couverture (auto-remplie)</label>
+            <input id="coverUrl" type="url" placeholder="https://..." />
+          </div>
+          
+          <div class="field col-3">
+            <label for="series">Série/Univers</label>
+            <input id="series" type="text" placeholder="Ex: Harry Potter" />
+          </div>
+          
+          <div class="field col-2">
+            <label for="volume">Tome/Volume</label>
+            <select id="volume">
+              <option value="">Aucun</option>
+              <option value="1">Tome 1</option>
+              <option value="2">Tome 2</option>
+              <option value="3">Tome 3</option>
+              <option value="4">Tome 4</option>
+              <option value="5">Tome 5</option>
+              <option value="6">Tome 6</option>
+              <option value="7">Tome 7</option>
+              <option value="8">Tome 8</option>
+              <option value="9">Tome 9</option>
+              <option value="10">Tome 10</option>
+              <option value="11">Tome 11</option>
+              <option value="12">Tome 12</option>
+              <option value="13">Tome 13</option>
+              <option value="14">Tome 14</option>
+              <option value="15">Tome 15</option>
+              <option value="16">Tome 16</option>
+              <option value="17">Tome 17</option>
+              <option value="18">Tome 18</option>
+              <option value="19">Tome 19</option>
+              <option value="20">Tome 20</option>
+              <option value="21">Tome 21</option>
+              <option value="22">Tome 22</option>
+              <option value="23">Tome 23</option>
+              <option value="24">Tome 24</option>
+              <option value="25">Tome 25</option>
+              <option value="26">Tome 26</option>
+              <option value="27">Tome 27</option>
+              <option value="28">Tome 28</option>
+              <option value="29">Tome 29</option>
+              <option value="30">Tome 30</option>
+              <option value="autre">Autre...</option>
+            </select>
+          </div>
+<!-- 
+          <div class="field col-1">
+            <label for="customVolume">N° Tome</label>
+            <input id="customVolume" type="number" placeholder="Ex: 31" min="1" style="display: none;" />
+          </div> -->
+          
+          <div class="field col-2">
+            <label for="format">Format</label>
+            <select id="format">
+              <option value="broché">Broché</option>
+              <option value="poche">Poche</option>
+              <option value="e-book">E-book</option>
+              <option value="audio">Audio</option>
+            </select>
+          </div>
+          
+          <div class="field col-12">
+            <label>Possession & Lecture</label>
+            <div class="chips">
+              <label class="chip">
+                <input id="owned" type="checkbox" />
+                Je possède
+              </label>
+              <label class="chip bd-yellow">
+                <input id="readingTodo" type="checkbox" />
+                À lire
+              </label>
+              <label class="chip bd-green">
+                <input id="readingDone" type="checkbox" />
+                Lu
+              </label>
+              <label class="chip">
+                <input id="owned" type="checkbox" />
+                Wishlist
+              </label>
             </div>
+          </div>
+          
+          <div class="field col-3">
+            <button class="btn btn-primary" type="submit">Ajouter</button>
+          </div>
+          
+          <div class="field col-3">
+            <button id="resetBtn" class="btn btn-secondary" type="button">Effacer</button>
+          </div>
         </div>
-    </header>
+      </form>
+    </section>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="container">
-            <!-- Wishlist Section -->
-            <section class="section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span class="icon">💝</span>
-                        Ma Wishlist
-                        <span id="wishlistCount" class="section-count">0</span>
-                    </h2>
-                    <div class="local-search">
-                        <span class="search-icon">🔍</span>
-                        <input 
-                            type="text" 
-                            id="wishlistSearch" 
-                            class="local-search-input" 
-                            placeholder="Rechercher dans ma wishlist..."
-                        >
-                    </div>
-                </div>
-                <div id="wishlistGrid" class="books-grid">
-                    <div class="no-books">Aucun livre dans votre wishlist</div>
-                </div>
-            </section>
+    <!-- Filtres améliorés -->
+    <div class="toolbar">
+      <div class="librarySearch">
+        <label for="librarySearch">Recherchez dans la bibliothèque</label>
+        <input id="librarySearch" class="search-input" type="text" placeholder="Rechercher par titre, auteur, série..." />
+      </div>
+      
+      <div class="filter-contenaire field">
+        <select id="searchType" class="col-3">
+          <option value="all">Tout rechercher</option>
+          <option value="title">Titre uniquement</option>
+          <option value="author">Auteur uniquement</option>
+          <option value="series">Série uniquement</option>
+        </select>
+        
+        <select id="filterType" class="col-3">
+          <option value="all">Tous</option>
+          <option value="owned">Possédés</option>
+          <option value="wishlist">Wishlist</option>
+        </select>
 
-            <!-- Library Section -->
-            <section class="section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <span class="icon">📚</span>
-                        Ma Bibliothèque
-                        <span id="libraryCount" class="section-count">0</span>
-                    </h2>
-                    <div class="local-search">
-                        <span class="search-icon">🔍</span>
-                        <input 
-                            type="text" 
-                            id="librarySearch" 
-                            class="local-search-input" 
-                            placeholder="Rechercher dans ma bibliothèque..."
-                        >
-                    </div>
-                </div>
-                <div id="libraryGrid" class="books-grid">
-                    <div class="no-books">Aucun livre dans votre bibliothèque</div>
-                </div>
-            </section>
-
-            <!-- Welcome Message -->
-            <div id="welcomeMessage" class="welcome">
-                <div class="welcome-icon">📚</div>
-                <h2 class="welcome-title">Commencez votre collection</h2>
-                <p class="welcome-text">
-                    Utilisez la barre de recherche ci-dessus pour trouver des livres sur Google Books 
-                    et les ajouter à votre wishlist ou directement à votre bibliothèque.
-                </p>
-            </div>
+        <div class="filter-group col-3">
+          <label class="filter-label">
+            <input type="checkbox" id="sortBySeries" class="filter-checkbox">
+            <span>Grouper par série/univers</span>
+          </label>
         </div>
-    </main>
-
-    <!-- Book Details Modal -->
-    <div id="bookModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Détails du livre</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            
-            <div id="modalBookContent" class="modal-book-content">
-                <!-- Content will be filled by JavaScript -->
-            </div>
-            
-            <form id="bookForm">
-                <div class="form-group">
-                    <label class="form-label" for="bookSeries">Série (optionnel)</label>
-                    <input type="text" id="bookSeries" class="form-input" placeholder="Nom de la série">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="bookSeriesNumber">Numéro dans la série</label>
-                    <input type="number" id="bookSeriesNumber" class="form-input" placeholder="1">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="bookFormat">Format</label>
-                    <select id="bookFormat" class="form-select">
-                        <option value="broché">Broché</option>
-                        <option value="poche">Poche</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="bookStatus">Ajouter à</label>
-                    <select id="bookStatus" class="form-select">
-                        <option value="wishlist">Wishlist</option>
-                        <option value="bibliotheque">Bibliothèque</option>
-                    </select>
-                </div>
-                
-                <div id="readingStateGroup" class="form-group" style="display: none;">
-                    <label class="form-label" for="bookReadingState">État de lecture</label>
-                    <select id="bookReadingState" class="form-select">
-                        <option value="a_lire">À lire</option>
-                        <option value="lu">Lu</option>
-                    </select>
-                </div>
-                
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Ajouter le livre</button>
-                </div>
-            </form>
-        </div>
+      </div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toast" class="toast">
-        <div id="toastTitle" class="toast-title"></div>
-        <div id="toastDescription" class="toast-description"></div>
-    </div>
+    <!-- Listes -->
+    <div id="loading" class="loading">Chargement...</div>
+    
+    <section id="ownedSection" class="section" style="display: none;">
+      <h2>📚 Ma Bibliothèque</h2>
+      <div id="ownedList" class="grid"></div>
+    </section>
+    
+    <section id="wishSection" class="section" style="display: none;">
+      <h2>💝 Ma Wishlist</h2>
+      <div id="wishList" class="grid"></div>
+    </section>
 
-    <script src="script.js"></script>
+    <!-- Sections pour tri par série/univers -->
+    <section id="groupedView" style="display: none;">
+      <div id="seriesGroups"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p class="footer-text">
+        💡 <strong>Astuce :</strong> Remplissez le champ "Série/Univers" pour regrouper les livres. 
+        Recherche automatique des couvertures et auteurs via Google Books API. 
+        Multi-édition temps réel grâce à Firebase Firestore.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Toast container -->
+  <div id="toastContainer"></div>
+  
+  <script src="./themeScript.js"></script>
+  <script type="module" src="./script.js"></script>
 </body>
 </html>
