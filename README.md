@@ -1,68 +1,72 @@
-Projet — 📚 Application Web Livres
+# 📚 Projet — Application Web de Gestion de Livres
 
-Je veux développer une application web de gestion de livres avec la stack suivante :
+## 🚀 Stack technique
+- **Front-end** : HTML, CSS, JavaScript natif *(sans framework JS)*  
+- **Back-end** : PHP / MySQL *(hébergé chez IONOS, base gérée via phpMyAdmin)*  
+- **Source de données externes** : [Google Books API](https://developers.google.com/books) *(gratuit, sans clé obligatoire)*  
 
-Front-end : HTML, CSS, JavaScript natif (pas de framework JS).
+---
 
-Back-end : PHP/MySQL (hébergé chez IONOS, base gérée via phpMyAdmin).
+## ✨ Fonctionnalités principales
 
-Source de données externes : Google Books API (gratuit, sans clé obligatoire).
+### 🔍 Recherche et auto-complétion (Google Books API)
+- Barre de recherche interrogeant **Google Books API**  
+- Suggestions affichées en **temps réel** *(auto-complétion)*  
+- En sélectionnant un livre, affichage d’une **fiche détaillée** :  
+  - Titre  
+  - Auteur(s)  
+  - Nombre de pages  
+  - ISBN  
+  - Image de couverture  
+  - Série & numéro *(si détectés automatiquement, sinon ajout manuel)*  
+  - Format : **broché** ou **poche** *(choix utilisateur)*  
 
-Fonctionnalités principales :
+---
 
-- Recherche et auto-complétion (Google Books API)
+### 📚 Gestion des livres dans la base MySQL
+Deux sections distinctes :
+- **Bibliothèque** *(livres possédés)*  
+- **Wishlist** *(livres désirés)*  
 
-- Une barre de recherche qui interroge Google Books API.
+➡️ Possibilité de déplacer un livre de la **Wishlist** vers la **Bibliothèque** via une case à cocher/décocher.  
 
-- Suggestions affichées en temps réel (auto-complétion).
+---
 
-- En sélectionnant un livre, on affiche une fiche détaillée :
+### 📖 Options de lecture
+États de lecture disponibles :
+- 🕮 **Pile à lire**  
+- ✅ **Lu**  
 
-- Titre, auteur(s), nombre de pages, ISBN, image de couverture.
+➡️ Distinction claire entre les livres *lus*, *en cours* ou *à lire*.  
 
-- Série & numéro (si détectés automatiquement), sinon ajout manuel.
+---
 
-- Format : broché ou poche (choix utilisateur).
+### 📂 Collections / Séries
+- Regroupement automatique des livres d’une même **série**  
+- Affichage dans l’ordre logique *(n°1, n°2, n°3…)*  
 
-- Gestion des livres dans la base MySQL
+---
 
-- Deux sections distinctes :
+### 🔎 Recherche interne
+- Une deuxième barre de recherche permettant de chercher un livre **parmi ceux déjà enregistrés**  
+  *(Bibliothèque ou Wishlist)*  
 
-- Bibliothèque (livres possédés)
+---
 
-- Wishlist (livres désirés)
+### 💾 Enregistrement et mise à jour en base
+- Sauvegarde via **PHP/PDO** dans **MySQL (IONOS)**  
+- Protection contre les **doublons** *(par ISBN ou Google ID)*  
+- Mise à jour automatique si le livre existe déjà  
 
-- Possibilité de déplacer un livre de la Wishlist vers la Bibliothèque via une case à cocher/décocher.
+---
 
-- Options de lecture
+## ✅ En résumé
+Cette application web permet de :
+- Ajouter des livres via **Google Books API** *(avec auto-complétion)*  
+- Gérer une **bibliothèque** et une **wishlist**  
+- Suivre l’**état de lecture** *(pile à lire / lu)*  
+- Distinguer les **formats** *(broché/poche)*  
+- Regrouper automatiquement les **séries**  
+- Effectuer des recherches dans **Google Books** et dans la base locale *(MySQL)*  
 
-- Cases/états pour suivre la lecture :
-
-- “Pile à lire”
-
-- “Lu”
-
-- Ainsi, on distingue clairement les livres lus, en cours ou à lire.
-
-- Collections / Séries
-
-- Regrouper automatiquement les livres d’une même série.
-
-- Les afficher dans l’ordre (n°1, n°2, n°3, etc.).
-
-- Recherche interne
-
-- Une deuxième barre de recherche qui permet de chercher un livre parmi ceux déjà enregistrés (dans Bibliothèque ou Wishlist).
-
-- Enregistrement et mise à jour en base
-
-- Sauvegarde via PHP/PDO dans MySQL (IONOS).
-
-- Empêcher les doublons (par ISBN ou Google ID).
-
-- Mise à jour si un livre existe déjà.
-
-👉 En résumé :
-Une application web complète permettant :
-
-d’ajouter des livres via Google Books API (avec auto-complétion), de gérer une bibliothèque et une wishlist, de suivre l’état de lecture (pile à lire / lu), de distinguer les formats (broché/poche), de regrouper les séries, et de chercher des livres dans Google Books et dans la base enregistrée.
+---
