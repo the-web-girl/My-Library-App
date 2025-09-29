@@ -129,7 +129,7 @@
                 Lu
               </label>
               <label class="chip">
-                <input id="owned" type="checkbox" />
+                <input id="wishlist" type="checkbox" />
                 Wishlist
               </label>
             </div>
@@ -154,6 +154,7 @@
       </div>
       
       <div class="filter-contenaire field">
+        <label for="searchType" class="sr-only">Type de recherche</label>
         <select id="searchType" class="col-3">
           <option value="all">Tout rechercher</option>
           <option value="title">Titre uniquement</option>
@@ -161,6 +162,7 @@
           <option value="series">Série uniquement</option>
         </select>
         
+        <label for="filterType" class="sr-only">Filtrer par collection</label>
         <select id="filterType" class="col-3">
           <option value="all">Tous</option>
           <option value="owned">Possédés</option>

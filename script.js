@@ -898,7 +898,7 @@ function toggleReadingState(id) {
         return;
     }
 
-    const newReadingState = book.readingDone ? 'A-lire' : 'lu';
+    const newReadingState = book.readingDone ? 'à lire' : 'lu';
     updateBookInDB(id, { 
         status: 'library', 
         reading_state: newReadingState 
